@@ -361,7 +361,7 @@ name; it is not the value itself.</p>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">upload(id=...,</span> <span class="pre">kind=...,</span> <span class="pre">...)</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">upload(kind=...,</span> <span class="pre">...)</span></code></p></td>
 <td><p>Upload module source, a tensor, bytes or a compiled library</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">Register</span></code></p></td>
 </tr>
@@ -373,11 +373,11 @@ name; it is not the value itself.</p>
 <td><p>Snapshot a local directory as file uploads</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">None</span></code></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">get_function(id=...,</span> <span class="pre">module=...,</span> <span class="pre">name=...,</span> <span class="pre">cpu_only=False)</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">get_function(module=...,</span> <span class="pre">name=...,</span> <span class="pre">cpu_only=False)</span></code></p></td>
 <td><p>Select a function or object from an earlier module or library</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">Register</span></code></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">run(id=...,</span> <span class="pre">fn=...,</span> <span class="pre">args=None)</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">run(fn=...,</span> <span class="pre">args=None)</span></code></p></td>
 <td><p>Call a selected or computed callable</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">Register</span></code></p></td>
 </tr>
@@ -400,9 +400,10 @@ name; it is not the value itself.</p>
 </tbody>
 </table>
 </div>
-<p>Instruction identifiers must be nonempty and unique. The name <code class="docutils literal notranslate"><span class="pre">return_</span></code> has a
-trailing underscore because <code class="docutils literal notranslate"><span class="pre">return</span></code> is a Python keyword. Use the
-<a class="reference internal" href="../python-api/index.html"><span class="std std-doc">Python API</span></a> for complete signatures and parameter types.</p>
+<p><code class="docutils literal notranslate"><span class="pre">Program</span></code> automatically generates an ID for each value-producing instruction.
+Use the optional <code class="docutils literal notranslate"><span class="pre">id</span></code> field to customize it.</p>
+<p>The name <code class="docutils literal notranslate"><span class="pre">return_</span></code> has a trailing underscore because <code class="docutils literal notranslate"><span class="pre">return</span></code> is a Python keyword.
+Use the <a class="reference internal" href="../python-api/index.html"><span class="std std-doc">Python API</span></a> for complete signatures and parameter types.</p>
 <section id="upload-and-select-a-function">
 <h3>Upload and select a function<a class="headerlink" href="#upload-and-select-a-function" title="Link to this heading">¶</a></h3>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
@@ -411,12 +412,12 @@ trailing underscore because <code class="docutils literal notranslate"><span cla
 
 <span class="n">program</span> <span class="o">=</span> <span class="n">Program</span><span class="p">()</span>
 <span class="n">module</span> <span class="o">=</span> <span class="n">program</span><span class="o">.</span><span class="n">upload</span><span class="p">(</span>
-    <span class="nb">id</span><span class="o">=</span><span class="s2">"module"</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s2">"module"</span><span class="p">,</span> <span class="n">source</span><span class="o">=</span><span class="s2">"def scale(x, factor): return x * factor"</span>
+    <span class="n">kind</span><span class="o">=</span><span class="s2">"module"</span><span class="p">,</span> <span class="n">source</span><span class="o">=</span><span class="s2">"def scale(x, factor): return x * factor"</span>
 <span class="p">)</span>
-<span class="n">scale</span> <span class="o">=</span> <span class="n">program</span><span class="o">.</span><span class="n">get_function</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s2">"scale"</span><span class="p">,</span> <span class="n">module</span><span class="o">=</span><span class="n">module</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"scale"</span><span class="p">)</span>
+<span class="n">scale</span> <span class="o">=</span> <span class="n">program</span><span class="o">.</span><span class="n">get_function</span><span class="p">(</span><span class="n">module</span><span class="o">=</span><span class="n">module</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"scale"</span><span class="p">)</span>
 <span class="n">values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
-<span class="n">x</span> <span class="o">=</span> <span class="n">program</span><span class="o">.</span><span class="n">upload</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s2">"x"</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s2">"tensor"</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="n">values</span><span class="p">)</span>
-<span class="n">y</span> <span class="o">=</span> <span class="n">program</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s2">"y"</span><span class="p">,</span> <span class="n">fn</span><span class="o">=</span><span class="n">scale</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">[</span><span class="n">x</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">program</span><span class="o">.</span><span class="n">upload</span><span class="p">(</span><span class="n">kind</span><span class="o">=</span><span class="s2">"tensor"</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="n">values</span><span class="p">)</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">program</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">fn</span><span class="o">=</span><span class="n">scale</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">[</span><span class="n">x</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
 <span class="n">program</span><span class="o">.</span><span class="n">return_</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="s2">"output"</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="n">y</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -428,12 +429,12 @@ precompiled library follows the same selection step.</p>
 <section id="pass-values-and-references">
 <h3>Pass values and references<a class="headerlink" href="#pass-values-and-references" title="Link to this heading">¶</a></h3>
 <p>Pass the value returned by <code class="docutils literal notranslate"><span class="pre">get_function</span></code> as the <code class="docutils literal notranslate"><span class="pre">fn</span></code> argument to <code class="docutils literal notranslate"><span class="pre">run</span></code>:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">scale</span> <span class="o">=</span> <span class="n">program</span><span class="o">.</span><span class="n">get_function</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s2">"scale"</span><span class="p">,</span> <span class="n">module</span><span class="o">=</span><span class="n">module</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"scale"</span><span class="p">)</span>
-<span class="n">y</span> <span class="o">=</span> <span class="n">program</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s2">"scaled"</span><span class="p">,</span> <span class="n">fn</span><span class="o">=</span><span class="n">scale</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">[</span><span class="n">x</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">scale</span> <span class="o">=</span> <span class="n">program</span><span class="o">.</span><span class="n">get_function</span><span class="p">(</span><span class="n">module</span><span class="o">=</span><span class="n">module</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"scale"</span><span class="p">)</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">program</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">fn</span><span class="o">=</span><span class="n">scale</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">[</span><span class="n">x</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
 </pre></div>
 </div>
-<p><code class="docutils literal notranslate"><span class="pre">scale</span></code> is a <code class="docutils literal notranslate"><span class="pre">Register</span></code>, a Python object holding the ID <code class="docutils literal notranslate"><span class="pre">&quot;scale&quot;</span></code>. The client
-serializes it as <code class="docutils literal notranslate"><span class="pre">{&quot;$ref&quot;:</span> <span class="pre">&quot;scale&quot;}</span></code> in the request. The same applies to a
+<p><code class="docutils literal notranslate"><span class="pre">scale</span></code> is a <code class="docutils literal notranslate"><span class="pre">Register</span></code>, a Python object holding the generated instruction ID.
+The client serializes it as <code class="docutils literal notranslate"><span class="pre">{&quot;$ref&quot;:</span> <span class="pre">scale.id}</span></code> in the request. The same applies to a
 <code class="docutils literal notranslate"><span class="pre">Register</span></code> returned by a <code class="docutils literal notranslate"><span class="pre">run</span></code> that produced another callable.</p>
 <p>Top-level <code class="docutils literal notranslate"><span class="pre">Register</span></code> arguments in <code class="docutils literal notranslate"><span class="pre">args</span></code> are encoded the same way. Ordinary
 numbers, strings, lists and dictionaries pass as JSON literals. An explicit
@@ -494,21 +495,21 @@ execution’s output. Learn the separate rules in the protocol’s
 <p>You can initialize tensors remotely by uploading Python, or upload tensors
 created locally.</p>
 <p>For remote initialization:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">module</span> <span class="o">=</span> <span class="n">program</span><span class="o">.</span><span class="n">upload</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s2">"allocator"</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s2">"module"</span><span class="p">,</span> <span class="n">source</span><span class="o">=</span><span class="s2">"""</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">module</span> <span class="o">=</span> <span class="n">program</span><span class="o">.</span><span class="n">upload</span><span class="p">(</span><span class="n">kind</span><span class="o">=</span><span class="s2">"module"</span><span class="p">,</span> <span class="n">source</span><span class="o">=</span><span class="s2">"""</span>
 <span class="s2">import torch</span>
 
 <span class="s2">def make_input():</span>
 <span class="s2">    return torch.randn((4096, 4096), dtype=torch.bfloat16, device="cuda")</span>
 <span class="s2">"""</span><span class="p">)</span>
-<span class="n">make_input</span> <span class="o">=</span> <span class="n">program</span><span class="o">.</span><span class="n">get_function</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s2">"make_input"</span><span class="p">,</span> <span class="n">module</span><span class="o">=</span><span class="n">module</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"make_input"</span><span class="p">)</span>
-<span class="n">x</span> <span class="o">=</span> <span class="n">program</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s2">"x"</span><span class="p">,</span> <span class="n">fn</span><span class="o">=</span><span class="n">make_input</span><span class="p">)</span>
+<span class="n">make_input</span> <span class="o">=</span> <span class="n">program</span><span class="o">.</span><span class="n">get_function</span><span class="p">(</span><span class="n">module</span><span class="o">=</span><span class="n">module</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"make_input"</span><span class="p">)</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">program</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">fn</span><span class="o">=</span><span class="n">make_input</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>For a local tensor:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
 <span class="n">values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
-<span class="n">x</span> <span class="o">=</span> <span class="n">program</span><span class="o">.</span><span class="n">upload</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s2">"x"</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s2">"tensor"</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="n">values</span><span class="p">)</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">program</span><span class="o">.</span><span class="n">upload</span><span class="p">(</span><span class="n">kind</span><span class="o">=</span><span class="s2">"tensor"</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="n">values</span><span class="p">)</span>
 </pre></div>
 </div>
 <p><code class="docutils literal notranslate"><span class="pre">kind=&quot;tensor&quot;</span></code> accepts a NumPy array, a torch tensor, any object supporting
@@ -526,9 +527,9 @@ types carried by <code class="docutils literal notranslate"><span class="pre">ml
 <p>Use <code class="docutils literal notranslate"><span class="pre">upload_file</span></code> when uploaded Python code expects a relative file path:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">program</span> <span class="o">=</span> <span class="n">Program</span><span class="p">()</span>
 <span class="n">program</span><span class="o">.</span><span class="n">upload_file</span><span class="p">(</span><span class="n">blob</span><span class="o">=</span><span class="n">tensor_bytes</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="s2">"./inputs/tensor.bin"</span><span class="p">)</span>
-<span class="n">module</span> <span class="o">=</span> <span class="n">program</span><span class="o">.</span><span class="n">upload</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s2">"reader_module"</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s2">"module"</span><span class="p">,</span> <span class="n">source</span><span class="o">=</span><span class="n">READER_SOURCE</span><span class="p">)</span>
-<span class="n">reader</span> <span class="o">=</span> <span class="n">program</span><span class="o">.</span><span class="n">get_function</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s2">"reader"</span><span class="p">,</span> <span class="n">module</span><span class="o">=</span><span class="n">module</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"main"</span><span class="p">)</span>
-<span class="n">result</span> <span class="o">=</span> <span class="n">program</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s2">"result"</span><span class="p">,</span> <span class="n">fn</span><span class="o">=</span><span class="n">reader</span><span class="p">)</span>
+<span class="n">module</span> <span class="o">=</span> <span class="n">program</span><span class="o">.</span><span class="n">upload</span><span class="p">(</span><span class="n">kind</span><span class="o">=</span><span class="s2">"module"</span><span class="p">,</span> <span class="n">source</span><span class="o">=</span><span class="n">READER_SOURCE</span><span class="p">)</span>
+<span class="n">reader</span> <span class="o">=</span> <span class="n">program</span><span class="o">.</span><span class="n">get_function</span><span class="p">(</span><span class="n">module</span><span class="o">=</span><span class="n">module</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"main"</span><span class="p">)</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">program</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">fn</span><span class="o">=</span><span class="n">reader</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>The module can use <code class="docutils literal notranslate"><span class="pre">open(&quot;inputs/tensor.bin&quot;,</span> <span class="pre">&quot;rb&quot;)</span></code> unchanged. File uploads
