@@ -323,55 +323,76 @@ worker that took it, and <code class="docutils literal notranslate"><span class=
 after the record naming its worker.</p>
 <p><code class="docutils literal notranslate"><span class="pre">sandbox_disabled</span></code> records why the startup check disabled isolation, at <code class="docutils literal notranslate"><span class="pre">WARNING</span></code>.
 <code class="docutils literal notranslate"><span class="pre">pool_ready.sandbox</span></code> reports the active mode: <code class="docutils literal notranslate"><span class="pre">bubblewrap</span></code> or <code class="docutils literal notranslate"><span class="pre">none</span></code>.</p>
-<p><code class="docutils literal notranslate"><span class="pre">request_finished</span></code> carries a <code class="docutils literal notranslate"><span class="pre">finish_reason</span></code>: why the request ended when it did.</p>
+<p><code class="docutils literal notranslate"><span class="pre">request_finished</span></code> carries a <code class="docutils literal notranslate"><span class="pre">finish_reason</span></code> describing the request outcome.</p>
 <div class="table-wrapper colwidths-auto docutils container">
 <table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p><code class="docutils literal notranslate"><span class="pre">finish_reason</span></code></p></th>
 <th class="head"><p>what happened</p></th>
-<th class="head"><p>worker</p></th>
 </tr>
 </thead>
 <tbody>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">completed</span></code></p></td>
 <td><p>the program ran to the end</p></td>
-<td><p>keeps serving</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">program_failed</span></code></p></td>
 <td><p>the program raised; <code class="docutils literal notranslate"><span class="pre">error_kind</span></code> and <code class="docutils literal notranslate"><span class="pre">instruction_index</span></code> say where</p></td>
-<td><p>keeps serving</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">request_limit</span></code></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">--max-requests-per-worker</span></code> reached, after answering</p></td>
-<td><p>replaced</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">poisoned_context</span></code></p></td>
-<td><p>cleanup after the program failed, after answering</p></td>
-<td><p>replaced</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">sandbox_cleanup</span></code></p></td>
-<td><p>sandbox resources survived the request or workspace cleanup failed</p></td>
-<td><p>killed, replaced</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">timeout</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">timeout</span></code></p></td>
 <td><p>no answer inside <code class="docutils literal notranslate"><span class="pre">timeout_seconds</span></code></p></td>
-<td><p>killed, replaced</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">crashed</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">crashed</span></code></p></td>
 <td><p>the process exited mid-request; <code class="docutils literal notranslate"><span class="pre">exitcode</span></code> says how</p></td>
-<td><p>killed, replaced</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">no_worker</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">no_worker</span></code></p></td>
 <td><p>saturated, nothing ran</p></td>
-<td><p>untouched</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">rejected</span></code>, <code class="docutils literal notranslate"><span class="pre">cache_miss</span></code>, <code class="docutils literal notranslate"><span class="pre">server_error</span></code></p></td>
-<td><p>never reached a worker</p></td>
-<td><p>untouched</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">rejected</span></code></p></td>
+<td><p>the request was rejected</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cache_miss</span></code></p></td>
+<td><p>required blobs were missing</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">server_error</span></code></p></td>
+<td><p>the server failed to handle the request</p></td>
 </tr>
 </tbody>
 </table>
 </div>
+<p><code class="docutils literal notranslate"><span class="pre">worker_retired</span></code> carries a <code class="docutils literal notranslate"><span class="pre">reason</span></code> describing why the worker is being replaced.</p>
+<div class="table-wrapper colwidths-auto docutils container">
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p><code class="docutils literal notranslate"><span class="pre">reason</span></code></p></th>
+<th class="head"><p>what happened</p></th>
+<th class="head"><p>level</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">request_limit</span></code></p></td>
+<td><p>the worker reached <code class="docutils literal notranslate"><span class="pre">--max-requests-per-worker</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">INFO</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">poisoned_context</span></code></p></td>
+<td><p>runtime cleanup failed</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">WARNING</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">sandbox_cleanup</span></code></p></td>
+<td><p>sandbox resources survived the request or workspace cleanup failed</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">WARNING</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">timeout</span></code></p></td>
+<td><p>the worker exceeded the execution timeout</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">WARNING</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">crashed</span></code></p></td>
+<td><p>the worker crashed or could not execute a program</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">ERROR</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>The pool makes a replacement worker available once it is ready.</p>
 <p>A failing program is the client’s kernel and stays <code class="docutils literal notranslate"><span class="pre">INFO</span></code>; only what the server
 itself did wrong reaches <code class="docutils literal notranslate"><span class="pre">ERROR</span></code>. A <code class="docutils literal notranslate"><span class="pre">cpu_only</span></code> function caught touching the GPU
 is a <code class="docutils literal notranslate"><span class="pre">gpu_access_violation</span></code> record at <code class="docutils literal notranslate"><span class="pre">WARNING</span></code>.</p>
